@@ -15,18 +15,21 @@ Vendor: CIRB <irisline@cirb.irisnet.be>
 UNKNOWN
 
 %prep
+tar xvzf %{_sourcedir}/%{name}-%{version}.tar.gz
+
 %setup -n %{name}-%{version} -n %{name}-%{version}
 
-
 %build
-
+rm -rf $RPM_BUILD_ROOT || true
+mkdir -p $RPM_BUILD_ROOT/usr/lib/%{name}
+cp -r * $RPM_BUILD_ROOT/usr/lib/%{name}
 
 %install
-%{_topdir}/install.sh "%{_topdir}" "$RPM_BUILD_ROOT" "%{name}" "%{version}"
-
+cd $RPM_BUILD_ROOT/usr/lib/%{name}
+make install
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 
 %files
