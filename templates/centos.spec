@@ -12,25 +12,23 @@ BuildArch: x86_64
 Vendor: CIRB <irisline@cirb.irisnet.be>
 
 %description
-UNKNOWN
+%{descrition}
 
 %prep
-tar xvzf %{_sourcedir}/%{name}-%{version}.tar.gz
-
-%setup -n %{name}-%{version} -n %{name}-%{version}
 
 %build
+make install
+
+%install
 rm -rf $RPM_BUILD_ROOT || true
 mkdir -p $RPM_BUILD_ROOT/usr/lib/%{name}
 cp -r * $RPM_BUILD_ROOT/usr/lib/%{name}
 
-%install
-cd $RPM_BUILD_ROOT/usr/lib/%{name}
-make install
-
 %clean
 rm -rf %{buildroot}
 
+%post
+make migrate
 
 %files
 %defattr(-,root,root)

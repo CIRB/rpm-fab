@@ -1,1 +1,2 @@
-from rpm_fab.main import rpm_fab
+
+from rpm_fab.main import rpm

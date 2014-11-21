@@ -1,9 +1,10 @@
 import os
-import shutil
 from exceptions import Exception
 
-from fabric.api import local, run, put
+from fabric.api import local, run, put, get
+from fabric.contrib.project import rsync_project
 
+ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 # /etc/ssh/sshd_config
 # Subsystem sftp internal-sftp
@@ -11,31 +12,19 @@ from fabric.api import local, run, put
 # yum install rpmdevtools
 
 
-def rpm_fab():
+def rpm():
     project_name = local("python setup.py --name", capture=True)
     project_version = local("python setup.py --version", capture=True)
-    # project_description = local("python setup.py --description", capture=True)
-
-    if os.path.exists('dist/'):
-        local('rm -rf dist/')
-
-    local("python setup.py sdist", capture=True)
-
-    project_sources = local("echo dist/*.tar.gz", capture=True)
-    if not os.path.exists(project_sources):
-        raise Exception("failed to archive sources")
 
     build_root = run('mktemp -d')
 
-    root_sources = '{0}/SOURCES/'.format(build_root)
+    root_sources = '{0}/BUILD/'.format(build_root)
     run('mkdir {0}'.format(root_sources))
-    put(project_sources, root_sources)
-
+    # put('.', root_sources)
+    rsync_project(local_dir='.', remote_dir=root_sources, exclude='.git')
     root_specs = '{0}/SPECS/'.format(build_root)
     run('mkdir {0}'.format(root_specs))
-    put('templates/centos.spec', root_specs)
-
-    put('templates/install.sh', build_root)
+    put('{0}/templates/centos.spec'.format(ROOT_DIR), root_specs)
 
     run_build(
         build_root=build_root,
@@ -45,22 +34,21 @@ def rpm_fab():
 
     print('Allright !! RPM has been build !')
 
-    bring_rpm_back(build_root)
+    bring_rpm_back(build_root, project_name, project_version)
 
 
-def bring_rpm_back(dest):
-    archs = run('ls {0}/RPMS/'.format(dest))
+def bring_rpm_back(build_root, name, version):
+    arch = 'x86_64'
+    rpms_path = (
+        '{build_root}/RPMS/{arch}/'
+        '{name}-{version}-1.{arch}.rpm').format(
+            build_root=build_root,
+            arch=arch,
+            name=name,
+            version=version
+        )
 
-    if len(archs) != 1:
-        raise Exception('rpm not found at {0}'.format(dest))
-
-    rpms_path = '{0}/RPMS/{1}'.format(dest, archs[0])
-
-    shutil.copy('{0}/{1}-{2}-1.x86_64.rpm'.format(
-        rpms_path,
-        project_infos['name'],
-        project_infos['version']
-    ), 'dist')
+    get(rpms_path)
 
 
 def run_build(**kwargs):
@@ -70,5 +58,5 @@ def run_build(**kwargs):
         ' --define "version {project_version}"'
         ' --define "release 1"'
         ' --define="_topdir {build_root}"'
-        ' -bb {0}/SPECS/centos.spec'
+        ' -bb {build_root}/SPECS/centos.spec'
         .format(**kwargs))

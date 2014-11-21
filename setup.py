@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import os
 
 version = '0.1.0'
@@ -16,6 +16,7 @@ install_requires = [
 setup(
     name='rpm-fab',
     version=version,
+    packages=find_packages(),
     description="Build rpm from eggs",
     long_description=long_description,
     # Get strings from http://www.python.org/pypi?%3Aaction=list_classifiers
@@ -27,9 +28,9 @@ setup(
     author_email='irisline@cirb.irisnet.be',
     url='',
     license='GPL',
-    packages=['rpm_fab'],
     install_requires=install_requires,
     include_package_data=True,
+    scripts=['rpm.py']
     # data_files=[
     #     ('templates', ['templates/{0}'.format(f) for f in os.listdir('templates')]),
     # ],
