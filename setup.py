@@ -30,13 +30,6 @@ setup(
     license='GPL',
     install_requires=install_requires,
     include_package_data=True,
-    scripts=['rpm.py']
-    # data_files=[
-    #     ('templates', ['templates/{0}'.format(f) for f in os.listdir('templates')]),
-    # ],
-    # entry_points={
-    #     'console_scripts': [
-    #         'rpm_fab = rpm_fab.main:rpm_fab'
-    #     ]
-    # },
+    scripts=['rpm.py'],
+    package_data={'rpm_fab': ['templates/*']}
 )

@@ -1,2 +1,1 @@
-recursive-include templates *
-include Makefile
+recursive-include rpm_fab/templates *
