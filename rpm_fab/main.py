@@ -1,10 +1,9 @@
 import os
-from exceptions import Exception
 
 from fabric.api import local, run, put, get
 from fabric.contrib.project import rsync_project
 
-ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # /etc/ssh/sshd_config
 # Subsystem sftp internal-sftp
