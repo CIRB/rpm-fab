@@ -12,7 +12,7 @@ ROOT_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 # yum install rpmdevtools
 
 
-def rpm():
+def rpm_build():
     project_name = local("python setup.py --name", capture=True)
     project_version = local("python setup.py --version", capture=True)
 
@@ -21,7 +21,13 @@ def rpm():
     root_sources = '{0}/BUILD/'.format(build_root)
     run('mkdir {0}'.format(root_sources))
     # put('.', root_sources)
-    rsync_project(local_dir='.', remote_dir=root_sources, exclude='.git')
+
+    rsync_project(
+        local_dir='.',
+        remote_dir=root_sources,
+        exclude=['.git', 'bin', 'lib', 'dist']
+    )
+
     root_specs = '{0}/SPECS/'.format(build_root)
     run('mkdir {0}'.format(root_specs))
     put('{0}/templates/centos.spec'.format(ROOT_DIR), root_specs)
@@ -34,12 +40,21 @@ def rpm():
 
     print('Allright !! RPM has been build !')
 
-    bring_rpm_back(build_root, project_name, project_version)
+    dist_path = 'dist'
+    local("rm -rf {}".format(dist_path))
+    local("mkdir {}".format(dist_path))
+
+    bring_rpm_back(build_root, dist_path, project_name, project_version)
 
 
-def bring_rpm_back(build_root, name, version):
+def rpm_install():
+    rpm_path = put('dist/*.rpm', '/tmp')
+    run('yum install -y {}'.format(rpm_path[0]))
+
+
+def bring_rpm_back(build_root, dest, name, version):
     arch = 'x86_64'
-    rpms_path = (
+    rpm_path = (
         '{build_root}/RPMS/{arch}/'
         '{name}-{version}-1.{arch}.rpm').format(
             build_root=build_root,
@@ -48,7 +63,7 @@ def bring_rpm_back(build_root, name, version):
             version=version
         )
 
-    get(rpms_path)
+    return get(rpm_path, dest)
 
 
 def run_build(**kwargs):

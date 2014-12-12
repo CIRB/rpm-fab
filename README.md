@@ -1,12 +1,18 @@
 
 
-install
--------
+Build RPM Packages of your python project
+
+Usage
+-----
 
 ```bash
-$ virtualenv --python=python2.7 env
-$ env/bin/python setup.py develop
+sudo pip2 install rpm_fab
+rpm.py build -H root@yourbuildserver.lan
+rpm.py install -H root@yourbuildserver.lan
 ```
+
+`build` will run make install
+
 
 self-dist with rpm
 ------------------
@@ -25,11 +31,3 @@ $ cd /path/to/your/project-folder
 $ /path/to/rpm_fab/env/bin/rpm_fab
 $ ls dist
 ```
-
-
-
-TODO
-----
-
-build on other setup.py than himself
-
