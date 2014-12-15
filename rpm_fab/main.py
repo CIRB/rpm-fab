@@ -1,6 +1,6 @@
 import os
 
-from fabric.api import local, run as remote_run, put, get
+from fabric.api import local, run as remote_run, put as remote_put, get as remote_get
 from fabric.contrib.project import rsync_project
 from fabric.state import env
 
@@ -18,6 +18,20 @@ def run(*args, **kwargs):
     else:
         kwargs['capture'] = True
         return local(*args, **kwargs)
+
+
+def put(src, dest, *args, **kwargs):
+    if env.hosts:
+        return remote_put(src, dest, *args, **kwargs)
+    else:
+        return local('cp {0} {1}'.format(src, dest))
+
+
+def get(src, dest, *args, **kwargs):
+    if env.hosts:
+        return remote_get(src, dest, *args, **kwargs)
+    else:
+        return local('cp {0} {1}'.format(src, dest))
 
 
 def sync(*args, **kwargs):
@@ -50,7 +64,7 @@ def rpm_build():
 
     root_specs = '{0}/SPECS/'.format(build_root)
     run('mkdir {0}'.format(root_specs))
-    sync(local_dir='{0}/templates/centos.spec'.format(ROOT_DIR), remote_dir=root_specs)
+    put('{0}/templates/centos.spec'.format(ROOT_DIR), root_specs)
 
     run_build(
         build_root=build_root,
