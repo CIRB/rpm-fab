@@ -1,7 +1,8 @@
 import os
 
-from fabric.api import local, run, put, get
+from fabric.api import local, run as remote_run, put, get
 from fabric.contrib.project import rsync_project
+from fabric.state import env
 
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -9,6 +10,25 @@ ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 # Subsystem sftp internal-sftp
 # service sshd restart
 # yum install rpmdevtools
+
+
+def run(*args, **kwargs):
+    if env.hosts:
+        return remote_run(*args, **kwargs)
+    else:
+        kwargs['capture'] = True
+        return local(*args, **kwargs)
+
+
+def sync(*args, **kwargs):
+    if env.hosts:
+        return rsync_project(*args, **kwargs)
+    else:
+        cmd = 'rsync -av {local_dir} {remote_dir}'.format(**kwargs)
+        if 'exclude' in kwargs:
+            cmd += ' --exclude ' + ','.join(kwargs['exclude'])
+
+        return local(cmd)
 
 
 def rpm_build():
@@ -19,9 +39,8 @@ def rpm_build():
 
     root_sources = '{0}/BUILD/'.format(build_root)
     run('mkdir {0}'.format(root_sources))
-    # put('.', root_sources)
 
-    rsync_project(
+    sync(
         local_dir='.',
         remote_dir=root_sources,
         exclude=['.git', 'bin', 'lib', 'dist']
@@ -29,7 +48,7 @@ def rpm_build():
 
     root_specs = '{0}/SPECS/'.format(build_root)
     run('mkdir {0}'.format(root_specs))
-    put('{0}/templates/centos.spec'.format(ROOT_DIR), root_specs)
+    sync(local_dir='{0}/templates/centos.spec'.format(ROOT_DIR), remote_dir=root_specs)
 
     run_build(
         build_root=build_root,

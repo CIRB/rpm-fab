@@ -7,11 +7,11 @@ from fabric.tasks import execute
 from rpm_fab.main import rpm_build, rpm_install
 
 parser = argparse.ArgumentParser()
-parser.add_argument("action")
-parser.add_argument('-H', '--host', help='increase output verbosity', required=False)
+parser.add_argument('action', choices=('build', 'install'), help='What to do')
+parser.add_argument('-H', '--host', required=False, help='Where to do')
 
 args = parser.parse_args()
-hosts = [args.host or 'localhost']
+hosts = [args.host] if args.host else None
 
 try:
     action = args.action
@@ -25,8 +25,6 @@ try:
             rpm_install,
             hosts=hosts
         )
-    else:
-        print "action should be 'build' or 'install'"
 except (EOFError, TypeError) as err:
     print(err)
     sys.exit(1)
