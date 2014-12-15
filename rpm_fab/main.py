@@ -26,7 +26,9 @@ def sync(*args, **kwargs):
     else:
         cmd = 'rsync -av {local_dir} {remote_dir}'.format(**kwargs)
         if 'exclude' in kwargs:
-            cmd += ' --exclude ' + ','.join(kwargs['exclude'])
+            cmd += ' '.join(
+                [' --exclude ' + excl_dir for excl_dir in kwargs['exclude']]
+            )
 
         return local(cmd)
 
