@@ -82,7 +82,9 @@ def rpm_build():
 
 
 def rpm_install():
+    project_name = local("python setup.py --name", capture=True)
     rpm_path = put('dist/*.rpm', '/tmp')
+    run('yum remove  -y {}'.format(project_name))
     run('yum install -y {}'.format(rpm_path[0]))
 
 
