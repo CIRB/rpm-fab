@@ -12,7 +12,7 @@ parser.add_argument('action', choices=('build', 'install'), help='What to do')
 parser.add_argument('-H', '--host', required=False, help='Where to do')
 
 args = parser.parse_args()
-env.hosts = [args.host] if args.host else None
+env.hosts = [args.host] if args.host else []
 
 try:
     action = args.action
