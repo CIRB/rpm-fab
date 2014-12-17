@@ -7,27 +7,23 @@ Usage
 
 ```bash
 sudo pip2 install rpm_fab
-rpm.py build -H root@yourbuildserver.lan
-rpm.py install -H root@yourbuildserver.lan
+rpm.py build -H root@your-build-server.lan
+rpm.py install -H root@your-run-server.lan
 ```
 
-`build` will run make install
+It assume that:
+- The current project has a `make install` target configured, it must be evironment free.
+- The current project has a `make migrate` target configured, it will be run on running server in post-install.
+- Path should only be prensent into `bin` and `lib` directories, using virtualenv, it should be runned with `virtualenv .`
 
 
-self-dist with rpm
-------------------
+add this in your `Makefile`:
 
-```bash
-$ env/bin/rpm_fab
-$ ls dist
+```
+rpm:
+    bin/pip install git+git://github.com/CIRB/rpm-fab.git --upgrade
+    bin/rpm.py build
 ```
 
 
-dist egg with rpm
-------------------
 
-```bash
-$ cd /path/to/your/project-folder
-$ /path/to/rpm_fab/env/bin/rpm_fab
-$ ls dist
-```
