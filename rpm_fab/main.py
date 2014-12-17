@@ -1,6 +1,6 @@
 import os
 
-from fabric.api import local, run as remote_run, put as remote_put, get as remote_get
+from fabric.api import local, sudo, run as remote_run, put as remote_put, get as remote_get
 from fabric.contrib.project import rsync_project
 from fabric.state import env
 
@@ -84,8 +84,8 @@ def rpm_build():
 def rpm_install():
     project_name = local("python setup.py --name", capture=True)
     rpm_path = put('dist/*.rpm', '/tmp')
-    run('yum remove  -y {}'.format(project_name))
-    run('yum install -y {}'.format(rpm_path[0]))
+    sudo('yum remove  -y {}'.format(project_name))
+    sudo('yum install -y {}'.format(rpm_path[0]))
 
 
 def bring_rpm_back(build_root, dest, name, version):
