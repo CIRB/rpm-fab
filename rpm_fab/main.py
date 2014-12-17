@@ -80,6 +80,8 @@ def rpm_build():
 
     bring_rpm_back(build_root, dist_path, project_name, project_version)
 
+    run('rm -rf {0}'.format(build_root))
+
 
 def rpm_install():
     project_name = local("python setup.py --name", capture=True)
