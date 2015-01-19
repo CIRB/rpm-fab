@@ -50,6 +50,7 @@ def sync(*args, **kwargs):
 def rpm_build():
     project_name = local("python setup.py --name", capture=True)
     project_version = local("python setup.py --version", capture=True)
+    project_release = env.release
 
     build_root = run('mktemp -d')
 
@@ -70,6 +71,7 @@ def rpm_build():
         build_root=build_root,
         project_name=project_name,
         project_version=project_version,
+        project_release=project_release
     )
 
     print('Allright !! RPM has been build !')
@@ -78,7 +80,7 @@ def rpm_build():
     local("rm -rf {}".format(dist_path))
     local("mkdir {}".format(dist_path))
 
-    bring_rpm_back(build_root, dist_path, project_name, project_version)
+    bring_rpm_back(build_root, dist_path, project_name, project_version, project_release)
 
     run('rm -rf {0}'.format(build_root))
 
@@ -90,15 +92,16 @@ def rpm_install():
     sudo('yum install -y {}'.format(rpm_path[0]))
 
 
-def bring_rpm_back(build_root, dest, name, version):
+def bring_rpm_back(build_root, dest, name, version, release):
     arch = 'x86_64'
     rpm_path = (
         '{build_root}/RPMS/{arch}/'
-        '{name}-{version}-1.{arch}.rpm').format(
+        '{name}-{version}-{release}.{arch}.rpm').format(
             build_root=build_root,
             arch=arch,
             name=name,
-            version=version
+            version=version,
+            release=release
         )
 
     return get(rpm_path, dest)
@@ -109,7 +112,7 @@ def run_build(**kwargs):
         'rpmbuild'
         ' --define "name {project_name}"'
         ' --define "version {project_version}"'
-        ' --define "release 1"'
+        ' --define "release {project_release}"'
         ' --define="_topdir {build_root}"'
         ' -bb {build_root}/SPECS/centos.spec'
         .format(**kwargs))

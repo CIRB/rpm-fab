@@ -10,9 +10,11 @@ from rpm_fab.main import rpm_build, rpm_install
 parser = argparse.ArgumentParser()
 parser.add_argument('action', choices=('build', 'install'), help='What to do')
 parser.add_argument('-H', '--host', required=False, help='Where to do')
+parser.add_argument('-R', '--release', required=False, help='Release number')
 
 args = parser.parse_args()
 env.hosts = [args.host] if args.host else []
+env.release = args.release if args.release else 0
 
 try:
     action = args.action
