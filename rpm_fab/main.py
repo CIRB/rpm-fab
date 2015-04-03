@@ -14,9 +14,10 @@ ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 def run(*args, **kwargs):
     if env.hosts:
+        if 'capture' in kwargs:
+            del kwargs['capture'] # default behavior
         return remote_run(*args, **kwargs)
     else:
-        kwargs['capture'] = True
         return local(*args, **kwargs)
 
 
@@ -52,7 +53,7 @@ def rpm_build():
     project_version = local("python setup.py --version", capture=True)
     project_release = env.release
 
-    build_root = run('mktemp -d')
+    build_root = run('mktemp -d', capture=True)
 
     root_sources = '{0}/BUILD/'.format(build_root)
     run('mkdir {0}'.format(root_sources))
