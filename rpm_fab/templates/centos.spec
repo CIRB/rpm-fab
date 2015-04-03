@@ -33,9 +33,9 @@ find . -name "*.pyo" -delete;
 find ./bin/ -exec sed -i "s:$RPM_BUILD_ROOT::g" {} \;
 find ./lib/python2.7/site-packages/ -exec sed -i "s:$RPM_BUILD_ROOT::g" {} \;
 
-prelink --undo ./bin/python
-prelink --undo ./bin/python2
-prelink --undo ./bin/python2.7
+/usr/sbin/prelink --undo ./bin/python
+/usr/sbin/prelink --undo ./bin/python2
+/usr/sbin/prelink --undo ./bin/python2.7
 
 %clean
 rm -rf %{buildroot}
